@@ -60,7 +60,7 @@ export default function TableForm({
     <FormProvider {...methods}>
       <TableActions onAdd={handleAdd} onSave={() => {}} onUndo={handleReset} />
       <table className="w-full border table-auto rounded-md bg-gray-300/30 mx-auto overflow-hidden">
-        <TableHeadCustom headLabel={TABLE_HEAD} />
+        <TableHeadCustom headLabel={TABLE_HEAD} onSort={() => {}} />
 
         <tbody className="bg-white">
           {fields.map((item, index) => (
