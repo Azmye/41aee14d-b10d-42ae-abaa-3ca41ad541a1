@@ -1,4 +1,3 @@
-import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 
 export const CreateUpdateSchema = z.object({
@@ -14,13 +13,14 @@ export const CreateUpdateSchema = z.object({
   ),
 });
 
+const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export async function fetchEmployees(query: string = "", page: string = "1") {
   try {
     const res = await fetch(
-      `http://localhost:3000/employee?search=${query}&page=${page}`,
+      `${baseUrl}/employee?search=${query}&page=${page}`,
       {
         cache: "no-store",
-        // next: { tags: ["employees"] },
       }
     );
 
@@ -39,7 +39,7 @@ export async function createUpdateEmployees(
   try {
     const payload = params;
 
-    const res = await fetch("http://localhost:3000/employee", {
+    const res = await fetch(`${baseUrl}/employee`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

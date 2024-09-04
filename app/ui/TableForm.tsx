@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useActionState, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import TableInputRow from "./TableInputRow";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import TableHeadCustom from "./TableHeadCustom";
@@ -38,18 +38,6 @@ export default function TableForm({
   };
 }) {
   const [employees, setEmployees] = useState<Employee[]>(initialData.data);
-  //   const initialState: Employee = {
-  //     id: 0,
-  //     firstName: "",
-  //     lastName: "",
-  //     position: "",
-  //     phone: "",
-  //     email: "",
-  //   };
-  //   const [state, formAction] = useActionState(
-  //     createUpdateEmployees,
-  //     initialState
-  //   );
 
   const defaultValues = useMemo<z.infer<typeof CreateUpdateSchema>>(
     () => ({
