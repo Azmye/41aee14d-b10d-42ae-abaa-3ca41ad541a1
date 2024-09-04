@@ -1,6 +1,5 @@
 import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import { editMarker } from "../lib/utils";
 
 type Props = {
   name: string;
@@ -8,9 +7,7 @@ type Props = {
 };
 
 export default function TableInputRow({ name, index }: Props) {
-  const { control, getValues, getFieldState, formState } = useFormContext();
-
-  console.log(getFieldState(`${name}.${index}.firstName`, formState));
+  const { control, getFieldState, formState } = useFormContext();
 
   const fieldState = (prop: string) =>
     getFieldState(`${name}.${index}.${prop}`, formState);
