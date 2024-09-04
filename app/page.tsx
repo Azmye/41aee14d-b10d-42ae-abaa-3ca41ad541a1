@@ -15,7 +15,7 @@ export default async function Home({
     await fetchEmployees();
 
   return (
-    <main className="mx-auto container w-full py-5">
+    <main className="w-full max-w-7xl mx-auto container py-5">
       <TableForm searchParams={searchParams} initialData={initialData} />
     </main>
   );
