@@ -1,12 +1,19 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useActionState, useEffect, useMemo, useState } from "react";
 import TableInputRow from "./TableInputRow";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import TableHeadCustom from "./TableHeadCustom";
 import TableActions from "./TableActions";
 import { Employee } from "../interfaces/employee";
 import TablePagination from "./TablePagination";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  createUpdateEmployees,
+  CreateUpdateSchema,
+  fetchEmployees,
+} from "../lib/actions/employee";
 
 const TABLE_HEAD = [
   { id: "firstName", label: "First Name", align: "left" },
@@ -18,10 +25,12 @@ const TABLE_HEAD = [
 
 export default function TableForm({
   initialData,
+  searchParams,
 }: {
   initialData: {
     data: Employee[];
     totalPages: number;
+    size: number;
   };
   searchParams?: {
     search?: string;
@@ -29,8 +38,20 @@ export default function TableForm({
   };
 }) {
   const [employees, setEmployees] = useState<Employee[]>(initialData.data);
+  //   const initialState: Employee = {
+  //     id: 0,
+  //     firstName: "",
+  //     lastName: "",
+  //     position: "",
+  //     phone: "",
+  //     email: "",
+  //   };
+  //   const [state, formAction] = useActionState(
+  //     createUpdateEmployees,
+  //     initialState
+  //   );
 
-  const defaultValues = useMemo(
+  const defaultValues = useMemo<z.infer<typeof CreateUpdateSchema>>(
     () => ({
       employees: employees.map((item) => ({
         ...item,
@@ -39,19 +60,32 @@ export default function TableForm({
     [employees]
   );
 
-  const methods = useForm({
+  const methods = useForm<z.infer<typeof CreateUpdateSchema>>({
     defaultValues,
+    resolver: zodResolver(CreateUpdateSchema),
   });
 
-  const { control, reset, watch } = methods;
+  const { control, reset, handleSubmit } = methods;
+
+  const refetch = async () => {
+    try {
+      const res = await fetchEmployees(
+        searchParams?.search,
+        searchParams?.page
+      );
+      setEmployees(res.data);
+    } catch (err) {
+      console.error("Error refetching employees:", err);
+    }
+  };
 
   useEffect(() => {
-    setEmployees(initialData.data);
-  }, [initialData.data]);
+    refetch();
+  }, [searchParams]);
 
   useEffect(() => {
     reset(defaultValues);
-  }, [employees]);
+  }, [defaultValues, reset]);
 
   const { fields, prepend } = useFieldArray({
     control,
@@ -60,6 +94,7 @@ export default function TableForm({
 
   const handleAdd = () => {
     prepend({
+      id: initialData.size + 1,
       firstName: "",
       lastName: "",
       position: "",
@@ -72,12 +107,21 @@ export default function TableForm({
     reset();
   };
 
+  const onSubmit = async (data: z.infer<typeof CreateUpdateSchema>) => {
+    try {
+      await createUpdateEmployees(data);
+      refetch();
+    } catch (err) {
+      console.error("Error saving employees:", err);
+    }
+  };
+
   return (
     <>
       <FormProvider {...methods}>
         <TableActions
           onAdd={handleAdd}
-          onSave={() => {}}
+          onSave={handleSubmit(onSubmit)}
           onUndo={handleReset}
         />
         <table className="w-full border table-auto rounded-md bg-gray-300/30 mx-auto overflow-hidden">
